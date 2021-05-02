@@ -23,7 +23,7 @@ jobs:
         with:
           route: POST /repos/{owner}/{repo}/check-runs
           owner: ${{ github.repository_owner }}
-          repo: ${{ github.repository.name }}
+          repo: ${{ github.event.repository.name }}
           name: "Test check run"
           head_sha: ${{ steps.comment-branch.outputs.head_ref }}
           output: | # The | is significant!
@@ -41,7 +41,7 @@ jobs:
         with:
           route: PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}
           owner: ${{ github.repository_owner }}
-          repo: ${{ github.repository.name }}
+          repo: ${{ github.event.repository.name }}
           check_run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
           conclusion: "success"
           status: "completed"
