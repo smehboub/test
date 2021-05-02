@@ -15,7 +15,7 @@ jobs:
         uses: xt0rted/pull-request-comment-branch@v1
         id: comment-branch
         with:
-          repo_token: $${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
 
       # Create check run
       - uses: octokit/request-action@v2.x
