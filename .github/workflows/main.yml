@@ -11,39 +11,62 @@ jobs:
     name: one
     runs-on: ubuntu-latest
     steps:
-      - name: Get PR branch
-        uses: xt0rted/pull-request-comment-branch@v1
-        id: comment-branch
+      - uses: actions/checkout@v1
+      # Get the reviews count with APPROVED state.
+      - uses: smehboub/gh-reviews-count@main
+        id: reviewsCount
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Create check run
-      - uses: octokit/request-action@v2.x
-        id: create_check_run
-        with:
-          route: POST /repos/{owner}/{repo}/check-runs
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          name: "Test check run"
-          head_sha: ${{ steps.comment-branch.outputs.head_ref }}
-          output: | # The | is significant!
-            title: Test check run title
-            summary: A summary of the test check run
-            images:
-              - alt: Test image
-                image_url: https://octodex.github.com/images/jetpacktocat.png
+          state: APPROVED
+      - run: echo "The reviews count is ${REVIEWS}"
+        if: success() && steps.reviewsCount.outputs.count
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Update check run to completed, successful status
-      - uses: octokit/request-action@v2.x
-        id: update_check_run
-        with:
-          route: PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          check_run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
-          conclusion: "success"
-          status: "completed"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEWS: ${{ steps.reviewsCount.outputs.count }}
+#      - uses: octokit/request-action@v2.x
+#        id: Get reviews
+#        with:
+#          route: GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews
+#          owner: ${{ github.repository_owner }}
+#          repo: ${{ github.event.repository.name }}
+#          pull_number: ${{ github.event.issue.number }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#
+#          ${{ fromJson(steps.create_.outputs.data).id }}
+#
+#      - name: Get PR branch
+#        uses: xt0rted/pull-request-comment-branch@v1
+#        id: comment-branch
+#        with:
+#          repo_token: ${{ secrets.GITHUB_TOKEN }}
+#
+#      # Create check run
+#      - uses: octokit/request-action@v2.x
+#        id: create_check_run
+#        with:
+#          route: POST /repos/{owner}/{repo}/check-runs
+#          owner: ${{ github.repository_owner }}
+#          repo: ${{ github.event.repository.name }}
+#          name: "Test check run"
+#          head_sha: ${{ steps.comment-branch.outputs.head_ref }}
+#          output: | # The | is significant!
+#            title: Test check run title
+#            summary: A summary of the test check run
+#            images:
+#              - alt: Test image
+#                image_url: https://octodex.github.com/images/jetpacktocat.png
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#      # Update check run to completed, successful status
+#      - uses: octokit/request-action@v2.x
+#        id: update_check_run
+#        with:
+#          route: PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}
+#          owner: ${{ github.repository_owner }}
+#          repo: ${{ github.event.repository.name }}
+#          check_run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
+#          conclusion: "success"
+#          status: "completed"
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
