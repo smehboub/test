@@ -18,6 +18,7 @@ jobs:
       - name: Dump job context
         env:
           JOB_CONTEXT: ${{ toJSON(job) }}
+        run: echo "$JOB_CONTEXT"
       - uses: actions/checkout@v1
       # Get the reviews count with APPROVED state.
       - uses: smehboub/gh-reviews-count@main
