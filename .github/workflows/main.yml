@@ -11,6 +11,13 @@ jobs:
     name: one
     runs-on: ubuntu-latest
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJSON(job) }}
       - uses: actions/checkout@v1
       # Get the reviews count with APPROVED state.
       - uses: smehboub/gh-reviews-count@main
