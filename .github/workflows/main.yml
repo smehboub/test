@@ -1,33 +1,33 @@
 ---
 name: one
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    branches:
+      - main
 
 jobs:
   one:
-    if: contains(github.event.comment.html_url, '/pull/') && github.event.comment.body == 'TF apply'
     timeout-minutes: 120
     name: one
     runs-on: ubuntu-latest
     steps:
-      - uses: github-actions-tools/gh-reviews-count@main
-        id: reviewsCount
+      # List 5 kubernetes ingress-nginx repository's releases between release "NGINX: 0.44.0" and release "NGINX: 0.44.0"
+      # excluding precised ranges and by matching regex_filter value and ignoring from_release parameter value
+      - uses: github-actions-tools/gh-list-releases@main
+        id: list-releases
         with:
-          pull_request: $${{ github.event.issue.number }}
+          owner: kubernetes
+          repo: ingress-nginx
+          from_release: "NGINX: 0.44.0"
+          to_release: "NGINX: 0.45.0"
+          nb_results: 10
+          exclude_ranges: |
+            -3
+            5
+            7-8
+            9-
+          regex_filter: "/^(?!helm-chart-3.25.0|helm-chart-3.27.0).*/i"
+          skip_from_release: true
 
-      - run: echo "The approved reviews count is ${REVIEWS}"
-        if: success() && steps.reviewsCount.outputs.approved
-        env:
-          REVIEWS: ${{ steps.reviewsCount.outputs.approved }}
-
-      - uses: actions/github-script@v3
-        with:
-          script: |
-            const output = `#### approved : ${{ steps.reviewsCount.outputs.approved }}`;
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+      - run: |
+          for release in $(echo '${{ steps.list-releases.outputs.releases }}' | jq -r '.[]') ; do echo "release: ${release}" ; done
