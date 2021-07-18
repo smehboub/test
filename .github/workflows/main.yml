@@ -30,4 +30,4 @@ jobs:
           skip_from_release: true
 
       - run: |
-          for release in `echo ${{ steps.list-releases.outputs.releases }} | jq -r .[]` ; do echo "release: ${release}" ; done
+          for release in $(echo '${{ steps.list-releases.outputs.releases }}' | jq -r '.[]') ; do echo "release: ${release}" ; done
